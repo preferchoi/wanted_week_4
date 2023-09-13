@@ -46,10 +46,31 @@ export const options = {
       id: 'y2',
     },
   },
+  plugins: {
+    tooltip: {
+      callbacks: {
+        // label callback can be used to format the tooltip label
+        label: function (context) {
+          const labelIndex = context.dataIndex;
+          const datasetIndex = context.datasetIndex;
+          const originalData = data.datasets[datasetIndex].data[labelIndex];
+
+          // You can access the original data object using the dataIndex
+          const originalObject = mock_data?.response[chartLabels[labelIndex]];
+
+          return [
+            `ID: ${originalObject?.id}`,
+            `Value Area: ${originalObject?.value_area}`,
+            `Value Bar: ${originalObject?.value_bar}`
+          ];
+        }
+      }
+    }
+  },
 };
 
 export const data = {
-  labels:chartLabels,
+  labels: chartLabels,
   datasets: [
     {
       type: 'line',
