@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   Chart as ChartJS,
   LinearScale,
@@ -34,13 +34,13 @@ export const chartDataArea = Object.values(mock_data?.response).map(entry => ent
 export const options = {
   responsive: true,
   scales: {
-    y1: { // 첫 번째 Y축
+    y1: {
       type: 'linear',
       position: 'left',
       id: 'y1',
       max: 200,
     },
-    y2: { // 두 번째 Y축
+    y2: {
       type: 'linear',
       position: 'right',
       id: 'y2',
@@ -49,19 +49,13 @@ export const options = {
   plugins: {
     tooltip: {
       callbacks: {
-        // label callback can be used to format the tooltip label
         label: function (context) {
           const labelIndex = context.dataIndex;
-          const datasetIndex = context.datasetIndex;
-          const originalData = data.datasets[datasetIndex].data[labelIndex];
-
-          // You can access the original data object using the dataIndex
           const originalObject = mock_data?.response[chartLabels[labelIndex]];
-
           return [
             `ID: ${originalObject?.id}`,
             `Value Area: ${originalObject?.value_area}`,
-            `Value Bar: ${originalObject?.value_bar}`
+            `Value Bar: ${originalObject?.value_bar}`,
           ];
         }
       }
@@ -94,10 +88,36 @@ export const data = {
   ],
 };
 
-const userChart = () => {
+const uniqueIds = Array.from(new Set(Object.values(mock_data?.response).map(entry => entry.id)));
+
+const UserChart = () => {
+  const [selectedId, setSelectedId] = useState(null);
+
+  const filteredData = {
+    ...data,
+    datasets: data.datasets.map((dataset) => {
+      return {
+        ...dataset,
+        backgroundColor: dataset.data.map((_, index) => {
+          const originalObject = mock_data?.response[chartLabels[index]];
+          return originalObject?.id === selectedId ? 'rgba(255, 99, 132, 0.8)' : 'rgba(75, 192, 192, 0.5)';
+        }),
+      };
+    }),
+  };
   return (
-    <Chart data={data} options={options} />
+    <div>
+      <div>
+        <h3>Select ID to Highlight</h3>
+        {uniqueIds.map((id) => (
+          <button key={id} onClick={() => setSelectedId(id)}>
+            {id}
+          </button>
+        ))}
+      </div>
+      <Chart data={filteredData} options={options} />
+    </div>
   );
 };
 
-export default userChart;
+export default UserChart;
